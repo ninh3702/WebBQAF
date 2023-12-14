@@ -1,0 +1,93 @@
+﻿@model IEnumerable<WebBanHangOnline.Models.ApplicationUser>
+@{
+    ViewBag.Title = "Quản lý tài khoản";
+}
+
+
+<!-- Main content -->
+<section class="content">
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Danh sách tài khoản</h3>
+
+            <div class="card-tools">
+                <a href="/admin/account/create" class="btn btn-success">Thêm mới</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tài khoản</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        var i = 1;
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@i</td>
+                                <td>@item.UserName</td>
+                                <td>@item.FullName</td>
+                                <td>@item.Email</td>
+                                <td>
+                                    @*<a href="/admin/account/edit/@item.Id" class="btn btn-sm btn-primary">Sửa</a>*@
+                                    <a href="#" data-user="@item.UserName" data-account-id="@item.Id" class="btn btn-sm btn-danger btnDelete">Xóa</a>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+
+                    }
+                </tbody>
+            </table>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+
+        </div>
+        <!-- /.card-footer-->
+    </div>
+    <!-- /.card -->
+
+</section>
+<!-- /.content -->
+
+@section scripts{
+    <script>
+        // bắt sự kiện click vào nút xóa Account
+        $('.btnDelete').click(function () {
+            debugger;
+            alert("vào rồi");
+            var accountId = $(this).data('account-id'); // lấy giá trị data-account-id từ button
+            var confirmation = confirm("Bạn có chắc chắn muốn xóa Account này?"); // hiển thị hộp thoại xác nhận
+            if (confirmation) {
+                $.ajax({
+                    url: '/Account/Delete/' + accountId, // đường dẫn controller action để xóa Account
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (data) {
+                        // xóa Account thành công, cập nhật lại danh sách Account
+                        location.reload();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        // xảy ra lỗi khi xóa Account, thông báo cho người dùng
+                        alert('Đã xảy ra lỗi khi xóa Account: ' + textStatus + ' ' + errorThrown);
+                    }
+                });
+            }
+        });
+
+    </script>
+
+
+}
+

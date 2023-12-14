@@ -1,0 +1,109 @@
+﻿@model IEnumerable<WebBanHangOnline.Models.ShoppingCartItem>
+@using WebBanHangOnline.Common
+<table class="table">
+    <tr class="text-center">
+        <th>STT</th>
+        <th>Ảnh sản phẩm</th>
+        <th>Tên sản phẩm</th>
+        <th>Danh mục</th>
+        <th>Giá</th>
+
+        <th style="width:100px;">Số lượng</th>
+        <th style="width:100px;">Số lượng tồn</th>
+        <th>Thành tiền</th>
+        <th style="width:200px;">
+
+        </th>
+    </tr>
+    @if (Model != null && Model.Any())
+    {
+        var i = 0;
+        var tongtien = decimal.Zero;
+        var db = new WebBanHangOnline.Models.ApplicationDbContext();
+        foreach (var item in Model)
+        {
+            // Get product information for the shopping cart item
+            var product = db.Products.FirstOrDefault(p => p.Id == item.ProductId);
+            if (product == null)
+            {
+                continue;
+            }
+
+            // Calculate the total price for the shopping cart item
+            var total = product.Price * item.Quantity;
+
+            tongtien += total;
+
+            <tr class="text-center" id="trow_@item.ProductId">
+                <td>@(i+1)</td>
+                <td><img src="@item.ProductImg" width="60" /></td>
+                <td>
+                    <a href="/chi-tiet/@item.Alias-p@(item.ProductId)">
+                        @item.ProductName
+                    </a>
+                </td>
+                <td>@item.CategoryName</td>
+                <td>@Common.FormatNumber(product.Price, 0)</td>
+                <td>
+                    <input type="number"
+                           class="form-control"
+                           id="Quantity_@item.ProductId"
+                           value="@item.Quantity"
+                           min="1"
+                           max="@product.Quantity"
+                           data-stock-quantity="@product.Quantity"
+                           data-product-id="@item.ProductId" />
+                </td>
+                <td>@product.Quantity</td>
+                <th>@Common.FormatNumber(total, 2)</th>
+                <td>
+                    <a href="#" data-id="@item.ProductId" class="btn btn-sm btn-danger btnDelete">Xóa</a>
+                    <a href="#" data-id="@item.ProductId" data-stock-quantity="@product.Quantity" class="btn btn-sm btn-success btnUpdate">Cập nhật</a>
+                </td>
+            </tr>
+            i++;
+        }
+
+        <tr>
+            <th colspan="6" class="text-right">Tổng: </th>
+            <th class="text-center">@Common.FormatNumber(tongtien, 0)</th>
+            <th></th>
+        </tr>
+
+    }
+    else
+    {
+        <tr>
+            <th colspan="7">Không có sản phẩm trong giỏ hàng!!</th>
+        </tr>
+    }
+</table>
+
+<script>
+    $(function () {
+        $('input[type="number"]').on('change', function () {
+            var input = $(this);
+            var currentQuantity = parseInt(input.val());
+            var maxQuantity = parseInt(input.attr('max'));
+            var stockQuantity = parseInt(input.attr('data-stock-quantity'));
+
+            if (currentQuantity > maxQuantity) {
+                alert(`Số lượng tối đa cho phép là: ${maxQuantity}`);
+                input.val(maxQuantity);
+            } else if (currentQuantity > stockQuantity) {
+                alert(`Số lượng tồn kho chỉ còn: ${stockQuantity}`);
+                input.val(stockQuantity);
+            }
+        });
+    });
+</script>
+
+
+@section scripts{
+    <script>
+
+        
+    </script>
+}
+
+
